@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
-public class HelloController {
+public class MainController {
     @FXML
     private Label welcomeText;
 
