@@ -12,7 +12,7 @@ public class Driver extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Driver.class.getResource("MainScene.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 400, 350);
-        stage.setTitle("Hello!");
+        stage.setTitle("Macro Scanner");
         stage.setScene(scene);
         stage.show();
     }

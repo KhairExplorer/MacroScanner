@@ -14,7 +14,7 @@
     </padding>
    <ImageView fx:id="imageViewM" fitHeight="59.0" fitWidth="69.0" focusTraversable="true" pickOnBounds="true" preserveRatio="true">
       <image>
-         <Image url="@../../../../../../../../MDef.png" />
+         <Image url="@../../../icons/MDef.png" />
       </image>
    </ImageView>
    <VBox fx:id="vBox" alignment="CENTER" focusTraversable="true" prefHeight="138.0" prefWidth="223.0" spacing="15.0">

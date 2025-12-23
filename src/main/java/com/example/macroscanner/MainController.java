@@ -10,20 +10,25 @@ public class MainController {
     @FXML
     private Label welcomeText;
 
+    @FXML
     private Label lblMacroScanner;
-
+    @FXML
     private Label lblWelcome;
-
+    @FXML
     private Label lblChoose;
-
+    @FXML
     private Button btUP;
 
+    @FXML
     private Button btVC;
 
+    @FXML
     private Button btFID;
 
+    @FXML
     private VBox vBox;
 
+    @FXML
     private ImageView imageViewM;
 
 
