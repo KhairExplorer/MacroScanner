@@ -14,43 +14,34 @@ public class SidebarController {
     @FXML
     private Button btnSettings;
 
-    private MainController mainController;
-
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
-    }
-
     @FXML
     private void handleHome() {
-        mainController.loadHomePage();
+        HomePageController.getInstance().loadHomePage();
         updateButtonStyles(btnHome);
     }
 
     @FXML
     private void handleScanHistory() {
-        mainController.loadScanHistory();
+        HomePageController.getInstance().loadScanHistory();
         updateButtonStyles(btnScanHistory);
     }
 
     @FXML
     private void handleSettings() {
-        mainController.loadSettings();
+        HomePageController.getInstance().loadSettings();
         updateButtonStyles(btnSettings);
     }
 
     private void updateButtonStyles(Button activeButton) {
-        // إزالة الستايل النشط من جميع الأزرار
         btnHome.getStyleClass().remove("active");
         btnScanHistory.getStyleClass().remove("active");
         btnSettings.getStyleClass().remove("active");
 
-        // إضافة الستايل النشط للزر المحدد
         activeButton.getStyleClass().add("active");
     }
 
     @FXML
     public void initialize() {
-        // تفعيل زر Home بشكل افتراضي
         btnHome.getStyleClass().add("active");
     }
 }

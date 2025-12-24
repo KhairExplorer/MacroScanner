@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="rootPane" alignment="CENTER" prefHeight="480.0" prefWidth="420.0" spacing="15.0"
+      style="-fx-background-color: linear-gradient(to bottom, #E8E8E8, #F5F5F5);"
+      stylesheets="@sidebar-style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.macroscanner.MainController">
+
+    <HBox alignment="TOP_LEFT" VBox.vgrow="NEVER">
+        <padding><Insets left="10.0" top="10.0" /></padding>
+        <Button style="-fx-background-color: transparent; -fx-cursor: hand;"
+                onAction="#onBackClick" prefWidth="35" prefHeight="30">
+            <graphic>
+                <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true">
+                    <image>
+                        <Image url="@icons/back.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <VBox alignment="CENTER" style="-fx-background-color: #1a3a54; -fx-background-radius: 8;" prefWidth="60" prefHeight="55">
+        <Label text="M" style="-fx-text-fill: #4FC3F7; -fx-font-size: 30px; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <Label text="MacroScanner" style="-fx-text-fill: #1a3a54;">
+        <font><Font name="System Bold Italic" size="32.0" /></font>
+    </Label>
+
+    <VBox alignment="CENTER" spacing="12.0">
+        <padding><Insets left="50.0" right="50.0" top="20.0" /></padding>
+
+        <Label text="6-Digit Google Auth Code" style="-fx-text-fill: #666666; -fx-font-size: 17px;"/>
+
+        <TextField fx:id="txtVerificationCode" prefWidth="300" prefHeight="50" alignment="CENTER"
+                   styleClass="input-field" style="-fx-font-size: 18px;"/>
+
+        <Label fx:id="lblError" text="" style="-fx-text-fill: #D32F2F;" visible="false"/>
+
+        <Button text="Verify Code" prefWidth="300" prefHeight="45" onAction="#onVerifyCodeClick"
+                style="-fx-background-color: #1a7a8a; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+    </VBox>
+
+    <Label text="Way 2 , login by Digit-Code" style="-fx-text-fill: #1a7a8a; -fx-font-size: 14px;"/>
+    <padding><Insets bottom="40.0" /></padding>
+</VBox>

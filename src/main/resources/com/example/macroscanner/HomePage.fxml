@@ -3,61 +3,70 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER"
-      prefHeight="600.0"
-      prefWidth="700.0"
-      spacing="30.0"
-      style="-fx-background-color: #f5f5f5;"
-      xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
+<HBox fx:id="rootPane" prefHeight="700.0" prefWidth="1200.0"
+      style="-fx-background-color: #FFFFFF;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.example.macroscanner.HomePageController">
 
-    <padding>
-        <Insets top="50.0" bottom="50.0" left="50.0" right="50.0" />
-    </padding>
+    <fx:include fx:id="sidebar" source="Sidebar.fxml" />
 
-    <!-- Drag & Drop Area -->
-    <StackPane fx:id="dropArea"
-               prefHeight="300.0"
-               prefWidth="500.0"
-               style="-fx-background-color: #16658A; -fx-background-radius: 15;">
-        <VBox alignment="CENTER" spacing="20.0">
-            <ImageView fitHeight="100.0" fitWidth="100.0" preserveRatio="true">
-                <image>
-                    <Image url="@icons/cloud-upload.png" />
-                </image>
-            </ImageView>
+    <BorderPane HBox.hgrow="ALWAYS">
 
-            <VBox alignment="CENTER" spacing="5.0">
-                <Label text="Drag &amp; Drop Office" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="24.0" />
-                    </font>
-                </Label>
-                <Label text="Files Here to Scan" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="24.0" />
-                    </font>
-                </Label>
-            </VBox>
-        </VBox>
-    </StackPane>
+        <top>
+            <HBox style="-fx-background-color: #F2F2F2;">
+                <padding>
+                    <Insets bottom="5" left="15" right="10" top="5" />
+                </padding>
 
-    <!-- Select File Button -->
-    <Button fx:id="btnSelectFile"
-            text="SELECT FILE"
-            onAction="#handleSelectFile"
-            style="-fx-background-color: #16658A; -fx-text-fill: white; -fx-background-radius: 5;"
-            prefWidth="280.0"
-            prefHeight="50.0">
-        <font>
-            <Font name="System Bold" size="16.0" />
-        </font>
-    </Button>
-</VBox>
+                <Label text="MacroScanner" style="-fx-text-fill: #1a3a54; -fx-background-color: #F5F5F5; -fx-padding: 5 10; -fx-background-radius: 5; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button text="—" styleClass="window-control"
+                        onAction="#onMinimizeClick" prefWidth="40" prefHeight="35"/>
+                <Button text="⬜" styleClass="window-control"
+                        onAction="#onMaximizeClick" prefWidth="40" prefHeight="35"/>
+                <Button text="✖" styleClass="window-control"
+                        onAction="#onCloseClick" prefWidth="40" prefHeight="35"/>
+            </HBox>
+        </top>
+
+        <center>
+            <StackPane fx:id="contentArea" style="-fx-background-color: #FFFFFF;">
+                <padding>
+                    <Insets bottom="30" left="40" right="40" top="20" />
+                </padding>
+
+                <VBox alignment="CENTER" spacing="20">
+                    <VBox fx:id="dropZone" alignment="CENTER" spacing="15"
+                          style="-fx-background-color: #1a7a8a; -fx-background-radius: 15;"
+                          prefWidth="550" prefHeight="400">
+                        <padding>
+                            <Insets bottom="30" left="30" right="30" top="30" />
+                        </padding>
+
+                        <StackPane>
+                            <VBox alignment="CENTER" style="-fx-background-color: #E8E8E8; -fx-background-radius: 10; -fx-padding: 10 20;">
+                                <StackPane>
+                                    <Label text="☁" style="-fx-font-size: 45px; -fx-text-fill: #CCCCCC;"/>
+                                    <Label text="↑" style="-fx-font-size: 22px; -fx-text-fill: #666666;"/>
+                                </StackPane>
+                            </VBox>
+                        </StackPane>
+
+                        <VBox alignment="CENTER" spacing="0">
+                            <Label text="Drag &amp; Drop Office" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                            <Label text="Files Here to Scan" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-underline: true;"/>
+                        </VBox>
+                    </VBox>
+
+                    <Button text="SELECT FILE" onAction="#onSelectFileClick"
+                            prefWidth="350" prefHeight="45"
+                            style="-fx-background-color: #1a7a8a; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
+</HBox>

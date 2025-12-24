@@ -4,19 +4,37 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
 public class HelloApplication extends Application {
+
+    private static Stage primaryStage;
+
     @Override
     public void start(Stage stage) throws IOException {
+        primaryStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("MainScene.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 950, 600);
+        Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(getClass().getResource("sidebar-style.css").toExternalForm());
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle("MacroScanner");
         stage.setScene(scene);
-        stage.setMinWidth(800);
-        stage.setMinHeight(500);
+        stage.setResizable(false);
         stage.show();
+    }
+
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public static void switchScene(String fxmlFile) throws IOException {
+        FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource(fxmlFile));
+        Scene scene = new Scene(loader.load());
+        scene.getStylesheets().add(HelloApplication.class.getResource("sidebar-style.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.centerOnScreen();
     }
 
     public static void main(String[] args) {
