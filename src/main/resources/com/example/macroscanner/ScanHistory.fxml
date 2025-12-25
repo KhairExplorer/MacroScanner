@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20" style="-fx-background-color: #ECF0F1;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="25" left="25" right="25" top="25" />
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label text="📋 Scan History" style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;">
+            <font><Font size="24" /></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="🗑 Clear History"
+                style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;"
+                prefHeight="35"/>
+        <Button text="📥 Export"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;"
+                prefHeight="35"/>
+    </HBox>
+
+    <HBox spacing="15" alignment="CENTER_LEFT"
+          style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+        <padding>
+            <Insets bottom="15" left="20" right="20" top="15" />
+        </padding>
+        <TextField promptText="🔍 Search files..." prefWidth="300" prefHeight="35"
+                   style="-fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #E0E0E0;"/>
+        <ComboBox promptText="Filter by Status" prefWidth="150" prefHeight="35">
+            <items>
+                <javafx.collections.FXCollections fx:factory="observableArrayList">
+                    <String fx:value="All" />
+                    <String fx:value="Clean" />
+                    <String fx:value="Threat Detected" />
+                    <String fx:value="Suspicious" />
+                </javafx.collections.FXCollections>
+            </items>
+        </ComboBox>
+        <ComboBox promptText="Date Range" prefWidth="150" prefHeight="35">
+            <items>
+                <javafx.collections.FXCollections fx:factory="observableArrayList">
+                    <String fx:value="All Time" />
+                    <String fx:value="Today" />
+                    <String fx:value="Last 7 Days" />
+                    <String fx:value="Last 30 Days" />
+                </javafx.collections.FXCollections>
+            </items>
+        </ComboBox>
+    </HBox>
+
+    <VBox spacing="15" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        <TableView VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn text="File Name" prefWidth="250" />
+                <TableColumn text="File Type" prefWidth="100" />
+                <TableColumn text="Status" prefWidth="130" />
+                <TableColumn text="Threats" prefWidth="100" />
+                <TableColumn text="Scan Date" prefWidth="180" />
+                <TableColumn text="Actions" prefWidth="100" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

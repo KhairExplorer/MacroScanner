@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20" style="-fx-background-color: #ECF0F1;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="25" left="25" right="25" top="25" />
+    </padding>
+
+    <Label text="⚙ Settings" style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;">
+        <font><Font size="24" /></font>
+    </Label>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        <Label text="General Settings" style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;">
+            <font><Font size="16" /></font>
+        </Label>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Language:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <ComboBox prefWidth="200" value="English">
+                <items>
+                    <javafx.collections.FXCollections fx:factory="observableArrayList">
+                        <String fx:value="English" />
+                        <String fx:value="Arabic" />
+                        <String fx:value="French" />
+                    </javafx.collections.FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Theme:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <ComboBox prefWidth="200" value="Light">
+                <items>
+                    <javafx.collections.FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Light" />
+                        <String fx:value="Dark" />
+                        <String fx:value="System" />
+                    </javafx.collections.FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Auto-scan downloads:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <CheckBox selected="true"/>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        <Label text="Scan Settings" style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;">
+            <font><Font size="16" /></font>
+        </Label>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Scan depth:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <ComboBox prefWidth="200" value="Deep Scan">
+                <items>
+                    <javafx.collections.FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Quick Scan" />
+                        <String fx:value="Normal Scan" />
+                        <String fx:value="Deep Scan" />
+                    </javafx.collections.FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Quarantine threats:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <CheckBox selected="true"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Show notifications:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <CheckBox selected="true"/>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        <Label text="Account" style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;">
+            <font><Font size="16" /></font>
+        </Label>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Username:" style="-fx-text-fill: #666666;" prefWidth="150"/>
+            <Label text="admin" style="-fx-text-fill: #333333;"/>
+        </HBox>
+
+        <HBox spacing="15">
+            <Button text="Change Password"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;"
+                    prefHeight="35"/>
+            <Button text="Logout"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;"
+                    prefHeight="35"/>
+        </HBox>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="💾 Save Settings"
+                style="-fx-background-color: #27AE60; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-size: 14px;"
+                prefHeight="40" prefWidth="150"/>
+    </HBox>
+</VBox>
