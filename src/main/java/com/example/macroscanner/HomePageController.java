@@ -1,15 +1,15 @@
 package com.example.macroscanner;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -40,12 +40,15 @@ public class HomePageController implements Initializable {
     private SidebarController sidebarController;
     private static HomePageController instance;
     private ProgressBar progressBar;
+    private String lastScanStatus = "";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         instance = this;
         setupDragAndDrop();
         loadHomePage();
+        ScanHistoryManager.initialize();
+        rootPane.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
     }
 
     public static HomePageController getInstance() {
@@ -56,8 +59,8 @@ public class HomePageController implements Initializable {
         if (dropZone != null) {
             dropZone.setOnDragOver(this::handleDragOver);
             dropZone.setOnDragDropped(this::handleDragDropped);
-            dropZone.setOnDragEntered(e -> dropZone.setStyle("-fx-background-color: #145a6a; -fx-background-radius: 15;"));
-            dropZone.setOnDragExited(e -> dropZone.setStyle("-fx-background-color: #1a7a8a; -fx-background-radius: 15;"));
+            dropZone.setOnDragEntered(e -> dropZone.getStyleClass().add("drop-area:drag-over"));
+            dropZone.setOnDragExited(e -> dropZone.getStyleClass().remove("drop-area:drag-over"));
         }
     }
 
@@ -99,41 +102,38 @@ public class HomePageController implements Initializable {
     private void showReadyToScan() {
         VBox content = new VBox(20);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(40));
-        content.setStyle("-fx-background-color: #FFFFFF;");
+        content.getStyleClass().add("main-content-center");
 
         VBox readyBox = new VBox(15);
         readyBox.setAlignment(Pos.CENTER);
-        readyBox.setPadding(new Insets(30));
-        readyBox.setStyle("-fx-border-color: #E0E0E0; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-color: #FFFFFF; -fx-background-radius: 10;");
-        readyBox.setMaxWidth(400);
+        readyBox.getStyleClass().add("ready-box");
 
         Label titleLabel = new Label("Ready to Scan");
-        titleLabel.setFont(Font.font("System", FontWeight.BOLD, 28));
-        titleLabel.setStyle("-fx-text-fill: #333333;");
+        titleLabel.getStyleClass().add("ready-title");
 
         HBox fileInfo = new HBox(10);
         fileInfo.setAlignment(Pos.CENTER);
 
         Label fileIcon = new Label("📄");
-        fileIcon.setStyle("-fx-font-size: 24px; -fx-background-color: #E3F2FD; -fx-padding: 5 10; -fx-background-radius: 5;");
+        fileIcon.getStyleClass().add("file-icon-label");
 
         VBox fileDetails = new VBox(2);
         fileDetails.setAlignment(Pos.CENTER_LEFT);
+
         Label fileName = new Label(currentFile.getName());
-        fileName.setFont(Font.font("System", FontWeight.BOLD, 14));
+        fileName.getStyleClass().add("file-name-label-ready");
+
         String size = String.format("%.1f MB", currentFile.length() / (1024.0 * 1024.0));
         Label fileSize = new Label(size);
-        fileSize.setStyle("-fx-text-fill: #666666;");
-        fileDetails.getChildren().addAll(fileName, fileSize);
+        fileSize.getStyleClass().add("file-size-label");
 
+        fileDetails.getChildren().addAll(fileName, fileSize);
         fileInfo.getChildren().addAll(fileIcon, fileDetails);
 
         readyBox.getChildren().addAll(titleLabel, fileInfo);
 
         Button startScanBtn = new Button("START SCAN");
-        startScanBtn.setPrefSize(350, 45);
-        startScanBtn.setStyle("-fx-background-color: #1a7a8a; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
+        startScanBtn.getStyleClass().add("start-scan-btn");
         startScanBtn.setOnAction(e -> performScan());
 
         content.getChildren().addAll(readyBox, startScanBtn);
@@ -155,10 +155,26 @@ public class HomePageController implements Initializable {
                         int result = random.nextInt(3);
 
                         switch (result) {
-                            case 0 -> showScanResultSafe();
-                            case 1 -> showScanResultDanger();
-                            case 2 -> showScanResultWarning();
+                            case 0 -> {
+                                lastScanStatus = "SAFE";
+                                showScanResultSafe();
+                            }
+                            case 1 -> {
+                                lastScanStatus = "DANGEROUS";
+                                showScanResultDanger();
+                            }
+                            case 2 -> {
+                                lastScanStatus = "WARNING";
+                                showScanResultWarning();
+                            }
                         }
+
+                        ScanRecord record = new ScanRecord(
+                                currentFile.getName(),
+                                currentFile.getAbsolutePath(),
+                                lastScanStatus
+                        );
+                        ScanHistoryManager.saveScanRecord(record);
                     }
                 })
         );
@@ -169,24 +185,22 @@ public class HomePageController implements Initializable {
     private void showScanningProgress() {
         VBox content = new VBox(20);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E0E0E0; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
+        content.getStyleClass().add("scanning-container");
 
         StackPane iconPane = new StackPane();
         Label scanningIcon = new Label("🔍");
-        scanningIcon.setStyle("-fx-font-size: 60px;");
+        scanningIcon.getStyleClass().add("scanning-icon");
         iconPane.getChildren().add(scanningIcon);
 
         Label title = new Label("Scanning File...");
-        title.setFont(Font.font("System", FontWeight.BOLD, 24));
-        title.setStyle("-fx-text-fill: #1a7a8a; -fx-padding: 5 15;");
+        title.getStyleClass().add("scanning-title");
 
         this.progressBar = new ProgressBar();
-        progressBar.setPrefWidth(300);
+        progressBar.getStyleClass().add("progress-bar-custom");
         progressBar.setProgress(0);
 
         Label fileLabel = new Label("File: " + currentFile.getName());
-        fileLabel.setStyle("-fx-text-fill: #666666;");
+        fileLabel.getStyleClass().add("file-info-label");
 
         content.getChildren().addAll(iconPane, title, progressBar, fileLabel);
         contentArea.getChildren().setAll(content);
@@ -195,36 +209,31 @@ public class HomePageController implements Initializable {
     private void showScanResultSafe() {
         VBox content = new VBox(20);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E0E0E0; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
+        content.getStyleClass().add("result-container");
 
         StackPane iconPane = new StackPane();
         Circle circle = new Circle(60);
-        circle.setFill(Color.web("#7CB342"));
+        circle.getStyleClass().add("safe-circle");
+
         Label checkmark = new Label("✓");
-        checkmark.setStyle("-fx-text-fill: white; -fx-font-size: 60px; -fx-font-weight: bold;");
+        checkmark.getStyleClass().add("safe-checkmark");
         iconPane.getChildren().addAll(circle, checkmark);
 
         Label title = new Label("NO THREATS FOUND");
-        title.setFont(Font.font("System", FontWeight.BOLD, 26));
-        title.setStyle("-fx-text-fill: #7CB342; -fx-padding: 5 15;");
+        title.getStyleClass().add("safe-title");
 
         Label subtitle = new Label("The file is safe to open.");
-        subtitle.setStyle("-fx-text-fill: #333333; -fx-padding: 5 15;");
+        subtitle.getStyleClass().add("safe-subtitle");
 
         HBox buttons = new HBox(15);
         buttons.setAlignment(Pos.CENTER);
 
         Button openBtn = new Button("Open File");
-        openBtn.setPrefSize(140, 40);
-        openBtn.setStyle("-fx-background-color: #1a7a8a; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;");
+        openBtn.getStyleClass().add("open-file-btn");
         openBtn.setOnAction(e -> openFile());
 
         Button scanAnotherBtn = new Button("Scan Another");
-        scanAnotherBtn.setPrefSize(140, 40);
-        scanAnotherBtn.setStyle("-fx-background-color: #F0F0F0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;");
-        scanAnotherBtn.setOnMouseEntered(e -> scanAnotherBtn.setStyle("-fx-background-color: #E0E0E0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;"));
-        scanAnotherBtn.setOnMouseExited(e -> scanAnotherBtn.setStyle("-fx-background-color: #F0F0F0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;"));
+        scanAnotherBtn.getStyleClass().add("scan-another-btn");
         scanAnotherBtn.setOnAction(e -> loadHomePage());
 
         buttons.getChildren().addAll(openBtn, scanAnotherBtn);
@@ -236,46 +245,41 @@ public class HomePageController implements Initializable {
     private void showScanResultDanger() {
         VBox content = new VBox(15);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E0E0E0; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
+        content.getStyleClass().add("result-container");
 
         StackPane iconPane = new StackPane();
         Circle circle = new Circle(55);
-        circle.setFill(Color.web("#D32F2F"));
+        circle.getStyleClass().add("danger-circle");
+
         Label exclamation = new Label("!");
-        exclamation.setStyle("-fx-text-fill: white; -fx-font-size: 60px; -fx-font-weight: bold;");
+        exclamation.getStyleClass().add("danger-exclamation");
         iconPane.getChildren().addAll(circle, exclamation);
 
         Label title = new Label("MALICIOUS MACRO DETECTED");
-        title.setFont(Font.font("System", FontWeight.BOLD, 22));
-        title.setStyle("-fx-text-fill: #D32F2F; -fx-padding: 5 15;");
+        title.getStyleClass().add("danger-title");
 
         Label desc = new Label("It contains malicious code that can Hack or Damage your computer");
-        desc.setStyle("-fx-text-fill: #333333; -fx-padding: 5 15;");
+        desc.getStyleClass().add("danger-desc");
 
         Label threat1 = new Label("Threat: AutoOpen Trigger Found");
-        threat1.setStyle("-fx-text-fill: #333333; -fx-padding: 3 10;");
+        threat1.getStyleClass().add("threat-label");
 
         Label threat2 = new Label("Threat: Shell Command Found");
-        threat2.setStyle("-fx-text-fill: #333333; -fx-padding: 3 10;");
+        threat2.getStyleClass().add("threat-label");
 
         HBox buttons = new HBox(15);
         buttons.setAlignment(Pos.CENTER);
         buttons.setPadding(new Insets(10, 0, 0, 0));
 
         Button quarantineBtn = new Button("Quarantine File");
-        quarantineBtn.setPrefSize(150, 40);
-        quarantineBtn.setStyle("-fx-background-color: #D32F2F; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;");
+        quarantineBtn.getStyleClass().add("quarantine-btn");
         quarantineBtn.setOnAction(e -> {
             showAlert("File quarantined successfully!");
             loadHomePage();
         });
 
         Button ignoreBtn = new Button("Ignore");
-        ignoreBtn.setPrefSize(120, 40);
-        ignoreBtn.setStyle("-fx-background-color: #F0F0F0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;");
-        ignoreBtn.setOnMouseEntered(e -> ignoreBtn.setStyle("-fx-background-color: #E0E0E0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;"));
-        ignoreBtn.setOnMouseExited(e -> ignoreBtn.setStyle("-fx-background-color: #F0F0F0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;"));
+        ignoreBtn.getStyleClass().add("ignore-btn");
         ignoreBtn.setOnAction(e -> loadHomePage());
 
         buttons.getChildren().addAll(quarantineBtn, ignoreBtn);
@@ -287,26 +291,25 @@ public class HomePageController implements Initializable {
     private void showScanResultWarning() {
         VBox content = new VBox(20);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E0E0E0; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
+        content.getStyleClass().add("result-container");
 
         StackPane iconPane = new StackPane();
-        Label triangle = new Label("⚠");
-        triangle.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 120px;");
+        Label triangle = new Label("⚠ ");
+        triangle.getStyleClass().add("warning-triangle");
         iconPane.getChildren().add(triangle);
 
         Label title = new Label("CAUTION: UNKNOWN MACROS");
-        title.setFont(Font.font("System", FontWeight.BOLD, 24));
-        title.setStyle("-fx-text-fill: #FFA000; -fx-padding: 5 15;");
+        title.getStyleClass().add("warning-title");
 
         VBox descBox = new VBox(5);
         descBox.setAlignment(Pos.CENTER);
-        descBox.setStyle("-fx-padding: 10 20;");
 
         Label desc1 = new Label("This file contains automated scripts (Macros).");
+        desc1.getStyleClass().add("warning-desc");
+
         Label desc2 = new Label("Only open this file if you know and trust the sender.");
-        desc1.setStyle("-fx-text-fill: #333333; -fx-font-size: 14px;");
-        desc2.setStyle("-fx-text-fill: #333333; -fx-font-size: 14px;");
+        desc2.getStyleClass().add("warning-desc");
+
         descBox.getChildren().addAll(desc1, desc2);
 
         HBox buttons = new HBox(20);
@@ -314,15 +317,11 @@ public class HomePageController implements Initializable {
         buttons.setPadding(new Insets(15, 0, 0, 0));
 
         Button openCautionBtn = new Button("Open with Caution");
-        openCautionBtn.setPrefSize(180, 45);
-        openCautionBtn.setStyle("-fx-background-color: #FFA000; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;");
+        openCautionBtn.getStyleClass().add("open-caution-btn");
         openCautionBtn.setOnAction(e -> openFile());
 
         Button doNotOpenBtn = new Button("Do Not Open");
-        doNotOpenBtn.setPrefSize(150, 45);
-        doNotOpenBtn.setStyle("-fx-background-color: #F0F0F0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;");
-        doNotOpenBtn.setOnMouseEntered(e -> doNotOpenBtn.setStyle("-fx-background-color: #E0E0E0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;"));
-        doNotOpenBtn.setOnMouseExited(e -> doNotOpenBtn.setStyle("-fx-background-color: #F0F0F0; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;"));
+        doNotOpenBtn.getStyleClass().add("do-not-open-btn");
         doNotOpenBtn.setOnAction(e -> loadHomePage());
 
         buttons.getChildren().addAll(openCautionBtn, doNotOpenBtn);
@@ -334,14 +333,12 @@ public class HomePageController implements Initializable {
     public void loadHomePage() {
         VBox content = new VBox(20);
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF;");
+        content.getStyleClass().add("main-content");
 
         VBox dropArea = new VBox(15);
         dropArea.setAlignment(Pos.CENTER);
         dropArea.setPadding(new Insets(40));
-        dropArea.setPrefSize(550, 400);
-        dropArea.setStyle("-fx-background-color: #1a7a8a; -fx-background-radius: 15;");
+        dropArea.getStyleClass().add("drop-area");
 
         dropArea.setOnDragOver(this::handleDragOver);
         dropArea.setOnDragDropped(this::handleDragDropped);
@@ -350,26 +347,30 @@ public class HomePageController implements Initializable {
 
         StackPane cloudIcon = new StackPane();
         Label cloud = new Label("☁");
-        cloud.setStyle("-fx-font-size: 50px; -fx-text-fill: #CCCCCC;");
+        cloud.getStyleClass().add("cloud-icon");
+
         Label arrow = new Label("↑");
-        arrow.setStyle("-fx-font-size: 25px; -fx-text-fill: #666666;");
+        arrow.getStyleClass().add("upload-arrow");
         StackPane.setAlignment(arrow, Pos.CENTER);
+
         cloudIcon.getChildren().addAll(cloud, arrow);
-        cloudIcon.setStyle("-fx-background-color: #E8E8E8; -fx-background-radius: 10; -fx-padding: 10 20;");
+        cloudIcon.getStyleClass().add("cloud-icon-container");
 
         VBox textBox = new VBox(2);
         textBox.setAlignment(Pos.CENTER);
+
         Label dragText = new Label("Drag & Drop Office");
+        dragText.getStyleClass().add("drag-text-1");
+
         Label filesText = new Label("Files Here to Scan");
-        dragText.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
-        filesText.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-underline: true;");
+        filesText.getStyleClass().add("drag-text-2");
+
         textBox.getChildren().addAll(dragText, filesText);
 
         dropArea.getChildren().addAll(cloudIcon, textBox);
 
         Button selectBtn = new Button("SELECT FILE");
-        selectBtn.setPrefSize(400, 45);
-        selectBtn.setStyle("-fx-background-color: #1a7a8a; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
+        selectBtn.getStyleClass().add("select-file-btn");
         selectBtn.setOnAction(e -> onSelectFileClick());
 
         content.getChildren().addAll(dropArea, selectBtn);
@@ -378,36 +379,332 @@ public class HomePageController implements Initializable {
 
     public void loadScanHistory() {
         VBox content = new VBox(20);
-        content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF;");
+        content.setAlignment(Pos.TOP_CENTER);
+        content.getStyleClass().add("main-content");
 
-        Label title = new Label("Scan History");
-        title.setFont(Font.font("System", FontWeight.BOLD, 24));
-        title.setStyle("-fx-text-fill: #1a3a54;");
+        Label title = new Label("📋 Scan History");
+        title.getStyleClass().add("history-title");
 
-        Label info = new Label("No scan history available.");
-        info.setStyle("-fx-text-fill: #666666;");
+        ObservableList<ScanRecord> data = ScanHistoryManager.loadScanHistory();
 
-        content.getChildren().addAll(title, info);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        VBox cardsContainer = new VBox(15);
+        cardsContainer.getStyleClass().add("cards-container");
+
+        if (data.isEmpty()) {
+            VBox emptyState = new VBox(20);
+            emptyState.setAlignment(Pos.CENTER);
+            emptyState.getStyleClass().add("empty-state");
+
+            Label emptyIcon = new Label("📂");
+            emptyIcon.getStyleClass().add("empty-icon");
+
+            Label emptyText = new Label("No scan history available");
+            emptyText.getStyleClass().add("empty-text");
+
+            Label emptySubText = new Label("Start scanning files to see your history here");
+            emptySubText.getStyleClass().add("empty-subtext");
+
+            emptyState.getChildren().addAll(emptyIcon, emptyText, emptySubText);
+            cardsContainer.getChildren().add(emptyState);
+        } else {
+            for (ScanRecord record : data) {
+                HBox card = createScanCard(record);
+                cardsContainer.getChildren().add(card);
+            }
+        }
+
+        scrollPane.setContent(cardsContainer);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        content.getChildren().addAll(title, scrollPane);
         contentArea.getChildren().setAll(content);
     }
 
+    private HBox createScanCard(ScanRecord record) {
+        HBox card = new HBox(20);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.getStyleClass().add("scan-card");
+
+        VBox statusBox = new VBox(5);
+        statusBox.setAlignment(Pos.CENTER);
+        statusBox.setPrefWidth(100);
+
+        StackPane statusBadge = new StackPane();
+        statusBadge.setPrefSize(65, 65);
+        statusBadge.getStyleClass().add("status-badge");
+
+        String statusText, circleClass, iconClass, labelClass;
+        if (record.getStatus().equals("SAFE")) {
+            statusText = "SAFE";
+            circleClass = "status-circle-safe";
+            iconClass = "status-icon-safe";
+            labelClass = "status-label-safe";
+        } else if (record.getStatus().equals("DANGEROUS")) {
+            statusText = "DANGER";
+            circleClass = "status-circle-danger";
+            iconClass = "status-icon-danger";
+            labelClass = "status-label-danger";
+        } else {
+            statusText = "WARNING";
+            circleClass = "status-circle-warning";
+            iconClass = "status-icon-warning";
+            labelClass = "status-label-warning";
+        }
+
+        Circle statusCircle = new Circle(32);
+        statusCircle.getStyleClass().add(circleClass);
+
+        Label iconLabel = new Label(record.getStatus().equals("SAFE") ? "✓" :
+                record.getStatus().equals("DANGEROUS") ? "!" : "⚠");
+        iconLabel.getStyleClass().add(iconClass);
+
+        statusBadge.getChildren().addAll(statusCircle, iconLabel);
+
+        Label statusLabel = new Label(statusText);
+        statusLabel.getStyleClass().add(labelClass);
+
+        statusBox.getChildren().addAll(statusBadge, statusLabel);
+
+        VBox fileInfo = new VBox(8);
+        fileInfo.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(fileInfo, Priority.ALWAYS);
+
+        HBox fileNameBox = new HBox(8);
+        fileNameBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label fileIcon = new Label("📄");
+        fileIcon.getStyleClass().add("file-icon");
+
+        Label fileName = new Label(record.getFileName());
+        fileName.getStyleClass().add("file-name-label");
+        fileName.setMaxWidth(400);
+
+        fileNameBox.getChildren().addAll(fileIcon, fileName);
+
+        HBox pathBox = new HBox(8);
+        pathBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label pathIcon = new Label("📁");
+        pathIcon.getStyleClass().add("path-icon");
+
+        Label filePath = new Label(record.getFilePath());
+        filePath.getStyleClass().add("file-path-label");
+        filePath.setMaxWidth(400);
+
+        pathBox.getChildren().addAll(pathIcon, filePath);
+
+        HBox dateBox = new HBox(8);
+        dateBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label dateIcon = new Label("🕐");
+        dateIcon.getStyleClass().add("date-icon");
+
+        Label scanDate = new Label(record.getScanDate());
+        scanDate.getStyleClass().add("scan-date-label");
+
+        dateBox.getChildren().addAll(dateIcon, scanDate);
+
+        fileInfo.getChildren().addAll(fileNameBox, pathBox, dateBox);
+
+        VBox actionBox = new VBox(5);
+        actionBox.setAlignment(Pos.CENTER);
+        actionBox.setPrefWidth(80);
+
+        Button viewBtn = new Button("View");
+        viewBtn.setPrefSize(70, 32);
+        viewBtn.getStyleClass().add("view-btn");
+        viewBtn.setOnAction(e -> {
+            File file = new File(record.getFilePath());
+            if (file.exists() && Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (IOException ex) {
+                    showAlert("Cannot open file: " + ex.getMessage());
+                }
+            } else {
+                showAlert("File not found!");
+            }
+        });
+
+        actionBox.getChildren().add(viewBtn);
+
+        card.getChildren().addAll(statusBox, fileInfo, actionBox);
+
+        return card;
+    }
+
     public void loadSettings() {
-        VBox content = new VBox(20);
-        content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(30));
-        content.setStyle("-fx-background-color: #FFFFFF;");
+        VBox content = new VBox(25);
+        content.setAlignment(Pos.TOP_LEFT);
+        content.setPadding(new Insets(30, 40, 30, 40));
+        content.getStyleClass().add("settings-container");
 
-        Label title = new Label("Settings");
-        title.setFont(Font.font("System", FontWeight.BOLD, 24));
-        title.setStyle("-fx-text-fill: #1a3a54;");
+        Label title = new Label("Security Enforcement");
+        title.getStyleClass().add("settings-title");
 
-        Label info = new Label("Settings page coming soon.");
-        info.setStyle("-fx-text-fill: #666666;");
+        // Security Settings Card
+        VBox securityCard = createSettingsCard("Security Settings", "⚙️");
+        securityCard.setMaxWidth(650); // تصغير العرض
 
-        content.getChildren().addAll(title, info);
-        contentArea.getChildren().setAll(content);
+        HBox autoQuarantineBox = new HBox(15);
+        autoQuarantineBox.getStyleClass().add("settings-item");
+
+        VBox labelBox1 = new VBox(3);
+        labelBox1.getStyleClass().add("settings-item-label-box");
+        Label autoQuarantineLabel = new Label("Force Auto-Quarantine");
+        autoQuarantineLabel.getStyleClass().add("settings-item-title");
+        Label autoQuarantineDesc = new Label("Automatically quarantine detected threats");
+        autoQuarantineDesc.getStyleClass().add("settings-item-description");
+        labelBox1.getChildren().addAll(autoQuarantineLabel, autoQuarantineDesc);
+        HBox.setHgrow(labelBox1, Priority.ALWAYS);
+
+        CheckBox autoQuarantineCheck = new CheckBox();
+        autoQuarantineCheck.getStyleClass().add("settings-checkbox");
+
+        autoQuarantineBox.getChildren().addAll(labelBox1, autoQuarantineCheck);
+
+        Region separator1 = new Region();
+        separator1.getStyleClass().add("settings-separator");
+
+        HBox sensitivityBox = new HBox(15);
+        sensitivityBox.setAlignment(Pos.CENTER_LEFT);
+        sensitivityBox.setPadding(new Insets(15, 0, 0, 0));
+
+        VBox labelBox2 = new VBox(3);
+        labelBox2.getStyleClass().add("settings-item-label-box");
+        Label sensitivityLabel = new Label("Scan Sensitivity");
+        sensitivityLabel.getStyleClass().add("settings-item-title");
+        Label sensitivityDesc = new Label("Set the detection level for macro scanning");
+        sensitivityDesc.getStyleClass().add("settings-item-description");
+        labelBox2.getChildren().addAll(sensitivityLabel, sensitivityDesc);
+        HBox.setHgrow(labelBox2, Priority.ALWAYS);
+
+        ComboBox<String> sensitivityCombo = new ComboBox<>();
+        sensitivityCombo.getStyleClass().add("settings-combo-box");
+        sensitivityCombo.getItems().addAll("Low", "Medium", "High (Corporate Mode)");
+        sensitivityCombo.setValue("High (Corporate Mode)");
+
+        sensitivityBox.getChildren().addAll(labelBox2, sensitivityCombo);
+
+        securityCard.getChildren().addAll(autoQuarantineBox, separator1, sensitivityBox);
+
+        VBox accountCard = createSettingsCard("Account Management", "👤");
+        accountCard.setMaxWidth(650); // تصغير العرض
+
+        HBox changePasswordBox = createActionRow(
+                "Change Password",
+                "Update your account password",
+                "🔑",
+                e -> showChangePasswordDialog()
+        );
+
+        Region separator2 = new Region();
+        separator2.getStyleClass().add("settings-separator");
+
+        HBox faceIDBox = createActionRow(
+                "Update Face ID",
+                "Re-register your face for authentication",
+                "✅",
+                e -> showUpdateFaceIDDialog()
+        );
+
+        accountCard.getChildren().addAll(changePasswordBox, separator2, faceIDBox);
+
+        VBox notificationsCard = createSettingsCard("Notifications", "🔔");
+        notificationsCard.setMaxWidth(650); // تصغير العرض
+
+        HBox scanResultsBox = new HBox(15);
+        scanResultsBox.getStyleClass().add("settings-item");
+
+        VBox labelBox3 = new VBox(3);
+        labelBox3.getStyleClass().add("settings-item-label-box");
+        Label scanResultsLabel = new Label("Show Scan Results");
+        scanResultsLabel.getStyleClass().add("settings-item-title");
+        Label scanResultsDesc = new Label("Display notifications after each scan");
+        scanResultsDesc.getStyleClass().add("settings-item-description");
+        labelBox3.getChildren().addAll(scanResultsLabel, scanResultsDesc);
+        HBox.setHgrow(labelBox3, Priority.ALWAYS);
+
+        CheckBox scanResultsCheck = new CheckBox();
+        scanResultsCheck.setSelected(true);
+        scanResultsCheck.getStyleClass().add("settings-checkbox");
+
+        scanResultsBox.getChildren().addAll(labelBox3, scanResultsCheck);
+
+        notificationsCard.getChildren().add(scanResultsBox);
+
+        content.getChildren().addAll(title, securityCard, accountCard, notificationsCard);
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.getStyleClass().add("settings-scroll-pane");
+
+        contentArea.getChildren().setAll(scrollPane);
+    }
+
+    private VBox createSettingsCard(String cardTitle, String icon) {
+        VBox card = new VBox(20);
+        card.getStyleClass().add("settings-card");
+
+        HBox header = new HBox(10);
+        header.getStyleClass().add("settings-card-header");
+
+        Label iconLabel = new Label(icon);
+        iconLabel.getStyleClass().add("settings-card-icon");
+
+        Label titleLabel = new Label(cardTitle);
+        titleLabel.getStyleClass().add("settings-card-title");
+
+        header.getChildren().addAll(iconLabel, titleLabel);
+
+        card.getChildren().add(header);
+
+        return card;
+    }
+
+    private HBox createActionRow(String title, String description, String icon, javafx.event.EventHandler<javafx.scene.input.MouseEvent> action) {
+        HBox row = new HBox(15);
+        row.getStyleClass().add("settings-action-row");
+        row.setOnMouseClicked(action);
+
+        VBox labelBox = new VBox(3);
+        labelBox.getStyleClass().add("settings-item-label-box");
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("settings-item-title");
+        Label descLabel = new Label(description);
+        descLabel.getStyleClass().add("settings-item-description");
+        labelBox.getChildren().addAll(titleLabel, descLabel);
+        HBox.setHgrow(labelBox, Priority.ALWAYS);
+
+        Label iconLabel = new Label(icon);
+        iconLabel.getStyleClass().add("settings-action-icon");
+
+        Label arrow = new Label("›");
+        arrow.getStyleClass().add("settings-action-arrow");
+
+        row.getChildren().addAll(labelBox, iconLabel, arrow);
+
+        return row;
+    }
+
+    private void showChangePasswordDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Change Password");
+        alert.setHeaderText("Password Change");
+        alert.setContentText("Password change feature will be available soon!");
+        alert.showAndWait();
+    }
+
+    private void showUpdateFaceIDDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Update Face ID");
+        alert.setHeaderText("Face ID Update");
+        alert.setContentText("Face ID update feature will be available soon!");
+        alert.showAndWait();
     }
 
     private void openFile() {

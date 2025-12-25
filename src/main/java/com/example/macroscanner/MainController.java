@@ -113,7 +113,7 @@ public class MainController implements Initializable {
 
             FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add(getClass().getResource("sidebar-style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
             newStage.setScene(scene);
             newStage.show();
         } catch (IOException e) {

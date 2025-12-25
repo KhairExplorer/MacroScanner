@@ -17,7 +17,7 @@ public class HelloApplication extends Application {
         primaryStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("MainScene.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        scene.getStylesheets().add(getClass().getResource("sidebar-style.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setTitle("MacroScanner");
         stage.setScene(scene);
@@ -32,7 +32,7 @@ public class HelloApplication extends Application {
     public static void switchScene(String fxmlFile) throws IOException {
         FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource(fxmlFile));
         Scene scene = new Scene(loader.load());
-        scene.getStylesheets().add(HelloApplication.class.getResource("sidebar-style.css").toExternalForm());
+        scene.getStylesheets().add(HelloApplication.class.getResource("style.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
     }
