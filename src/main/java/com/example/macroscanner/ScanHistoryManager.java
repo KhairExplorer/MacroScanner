@@ -46,7 +46,6 @@ public class ScanHistoryManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return records;
     }
 

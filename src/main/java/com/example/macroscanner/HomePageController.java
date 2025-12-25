@@ -717,7 +717,6 @@ public class HomePageController implements Initializable {
         }
         loadHomePage();
     }
-
     private void showAlert(String message) {
         javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
         alert.setTitle("MacroScanner");

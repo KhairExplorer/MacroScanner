@@ -39,7 +39,6 @@ public class SidebarController {
 
         activeButton.getStyleClass().add("active");
     }
-
     @FXML
     public void initialize() {
         btnHome.getStyleClass().add("active");

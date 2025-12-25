@@ -15,7 +15,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
-
     @FXML private VBox rootPane;
     @FXML private Button btnUsernamePassword;
     @FXML private Button btnVerificationCode;

@@ -38,6 +38,7 @@ public class ScanRecord {
     public String getScanDate() { return scanDate.get(); }
     public void setScanDate(String value) { scanDate.set(value); }
     public StringProperty scanDateProperty() { return scanDate; }
+    
 
     public String toFileFormat() {
         return fileName.get() + "|" + filePath.get() + "|" + status.get() + "|" + scanDate.get();
